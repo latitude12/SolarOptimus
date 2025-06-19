@@ -1,0 +1,33 @@
+# Created by venv; see https://docs.python.org/3/library/venv.html
+# Ignore platform-specific folders
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.spec
+*.cfg
+*.ui
+
+# Ignore common build/output folders
+build/
+dist/
+etc/
+*.egg-info/
+
+# Ignore IDE/editor files
+.vscode/
+.idea/
+
+# If your virtualenv creates a lib/ folder directly
+Lib/
+Scripts/
+bin/
+Include/
+share/
+UI/
+
+# Allow essential files
+!.gitignore
+!*.py
+!*.md
+!*.csv
