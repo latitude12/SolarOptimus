@@ -254,13 +254,10 @@ def launchVerification(window):
         #Second page
         power = float(window.get_power())
         alpha = float(window.get_temp_coef())
-        area = float(window.get_area())
         pv_num = int(window.get_PV_num())
         pcu_inv = float(window.get_PCU_inv())
         pcu_charge = float(window.get_PCU_charge())
         bat_capa = float(window.get_capa())
-        bat_height = float(window.get_height())
-        bat_mass = float(window.get_mass())
         soc_min = float(window.get_SOC_min())
         bat_cycle = int(window.get_cycle())
         bat_lifetime = float(window.get_lifetime())
@@ -295,13 +292,10 @@ def launchVerification(window):
     if not check_years(design_year): return window._return_error_2("Years invalid")
     if not check_tables(tabs): return window._return_error_2("Invalid Load")
     if not checksupzero(power): return window._return_error_2("Invalid Power")
-    if not checksupzero(area): return window._return_error_2("Invalid Area")
     if not checksupzero(bat_capa): return window._return_error_2("Invalid Capacity")
     if not checksupzero(bat_lifetime): return window._return_error_2("Invalid Lifetime")
     if not checkOne(bat_cycle): return window._return_error_2("Invalid Cycle")
-    if not checksupzero(bat_height): return window._return_error_2("Invalid Height")
     if not checksupzero(bat_series): return window._return_error_2("Invalid #Battery")
-    if not checksupzero(bat_mass): return window._return_error_2("Invalid Mass")
     if not checksupzero(bat_para): return window._return_error_2("Invalid #Battery")
     if not checkOne(pv_num): return window._return_error_2("Invalid #PV-panels")
     if not checkpercent(soc_min): return window._return_error_2("Invalid SOC min")
@@ -326,11 +320,11 @@ def launchVerification(window):
     window._updateProgress_2(10)
     eta_tot = ((1-eta_shading/100) * (1-eta_mismatch/100) * (1-eta_connectors/100) * (1-eta_light/100) * (1-eta_nameplate/100))
 
-    df, _, ens, bat_df, lifetime_exp = LOLP.verifier(longitude, latitude, tabs, power, area, 
-                                bat_capa, bat_lifetime, bat_cycle, bat_height, bat_series, 
-                                bat_mass, bat_para, pv_num, soc_min, pcu_charge, pcu_inv, 
+    df, ens, bat_df, lifetime_exp = LOLP.verifier(longitude, latitude, tabs, power,
+                                bat_capa, bat_lifetime, bat_cycle, bat_series, 
+                                bat_para, pv_num, soc_min, pcu_charge, pcu_inv, 
                                 alpha, cleaningfreq, rainthresh, eta_tot, pcu_current, eta_cables, 
-                                window._updateProgress_2, etaLoad, df_solar= df_solar_data)
+                                window._updateProgress_2, etaLoad, design_year, df_solar= df_solar_data)
     
     design_health = str(round(find_health(bat_df, design_year)*100,1))
     print(f"The ENS computed is LOLP.py is {ens}")

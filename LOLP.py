@@ -27,26 +27,22 @@ from pymoo.operators.mutation.pm import PM
 from pymoo.termination import get_termination
 import numpy as np
 import pandas as pd
+from pandas import Timestamp
+from concurrent.futures import ThreadPoolExecutor
  
 ### --- DEFINITION OF USEFUL CLASSES --- ###
 
 class Panels:
-    def __init__(self, power, eta_tot, name=None, alpha=None, area=None, string_num=1, string_dist=None, clean_freq = 12, rainthresh = 7):
+    def __init__(self, power, eta_tot, name=None, alpha=None, string_num=1, string_dist=None, clean_freq = 12, rainthresh = 7):
         self.name = name
         self.eta_tot = eta_tot
         self.power = power
         self.alpha = alpha
-        self.area = area
         self.string_num = string_num
         self.string_dist = string_dist
         self.clean_freq = f'{clean_freq}W'
         self.rainthresh = rainthresh
-
-        # If SOC_min is given, compute E_min from it
-        if area is not None:
-            self.area = area
-        else:
-            self.area = self.power /(0.18 * 1000) #Approx size of panel depending on power
+        self.area = self.power /(0.18 * 1000) #Approx size of panel depending on power
 
         if alpha is not None: 
             self.alpha = alpha
@@ -75,7 +71,7 @@ class PCU:
 
 ### --- DATA FETCHING --- ###
 
-def change_timestamp(df, Location):
+def change_timestamp(df, local_tz):
     """
     Input: 
     - df: Dataframe to change from year, month, day, hour stamp to standard local time index
@@ -85,15 +81,13 @@ def change_timestamp(df, Location):
     
     df['datetime'] = pd.to_datetime(df[['Year', 'Month', 'Day', 'Hour']])
     df.set_index('datetime', inplace=True)
+    df.index.name = None
     df.drop(columns=['Year', 'Month', 'Hour', 'Minute', 'Day'], inplace=True)
-
-    timezone_finder = TimezoneFinder()
-    tz = timezone_finder.timezone_at(lng=Location.longitude, lat=Location.latitude)
-    df.index = df.index.tz_localize(tz) 
+    df.index = df.index.tz_localize(local_tz) 
     
     return df
 
-def fetch_irradiation(Location, year):
+def fetch_irradiation(Location, design_year, local_tz):
 
     """
     Input: Location object with 'latitude' and 'longitude' attributes, and the desired 'year' as a string.
@@ -101,57 +95,53 @@ def fetch_irradiation(Location, year):
     NSRDB Meteosat Prime Meridian dataset.
     """
 
-    API_KEY = 'JkGTQdgblLszU34Nu5qsWwskgkTQ8CwqWQfuNagI'
-    wkt_point = f'POINT({Location.longitude} {Location.latitude})'
-    url = 'https://developer.nrel.gov/api/nsrdb/v2/solar/msg-iodc-download.csv'
+    end_year = datetime.now().year
+    design_year = int(design_year)
+    start_year = max(2004, end_year - design_year)
+    # Convert to strings in YYYY-MM-DD format
+    start_date_str = f"{start_year}-01-01"
+    end_date_str = f"{end_year-1}-12-31"
 
-    params = {
-        'api_key': API_KEY,
-        'wkt': wkt_point,
-        'names': year,
-        'interval': '60',
-        'utc': 'false',
-        'attributes': 'dni,dhi,ghi,air_temperature,wind_speed',
-        'email': 'basti.gst@outlook.com',
-        'full_name': 'Bastien Gaussent',
-        'affiliation': 'EPFL',
-        'reason': 'Solar modeling',
-        'mailing_list': 'false'
-    }
+    # Fetch the dataframe at CAMS
+    data_frame, meta = pvlib.iotools.get_cams(
+        Location.latitude, Location.longitude,
+        start_date_str, end_date_str,
+        email = 'bastien.gaussent@epfl.ch',
+        identifier='cams_radiation', time_step='1h', 
+        time_ref='TST', verbose=False, map_variables=True, 
+        url='api.soda-solardata.com', timeout=60)
+    
+    data_frame.drop(columns=['Observation period', 'ghi_extra', 'ghi_clear', 'bhi',
+                             'bhi_clear', 'dhi_clear', 'dni_clear', 'Reliability'], inplace=True)
+    
+    data_frame.rename(columns={
+                     'ghi': 'GHI',
+                     'dhi': 'DHI',
+                     'dni': 'DNI' }, inplace=True)
 
-    response = requests.get(url, params=params)
+    # Step 2: Assign the correct local timezone (without changing the clock time)
+    data_frame.index = data_frame.index.tz_convert(None)
+    data_frame.index = data_frame.index.tz_localize(local_tz)
 
-    if response.status_code == 200:
-        df = pd.read_csv(io.StringIO(response.text), skiprows=2)
-    else:
-        print(f"Request failed with status code {response.status_code}")
-        print(response.text)
-        return None
-
-    #Change the index to standardized timestamp
-    df = change_timestamp(df, Location)
-    #Rename columns for practicality
-    df.rename(columns={'GHI': 'GHI_sat','Wind Speed': 'Wind'}, inplace=True)
-
-    return df
+    return data_frame
 
 ### --- POLLUTION FECTHING --- ###
 
-def convert_UNIX(df, Location, year):
+def convert_UNIX(df, local_tz, year):
     """
-    Converts a DataFrame with UNIX timestamps to localized datetime format,
+    Converts a DataFrame with UNIX timestamps to localized datetime format,    Converts a DataFrame with UNIX timestamps to localized datetime format,
     and appends datetime components (year, month, day, hour, minute).
 
     Parameters:
-        df (pd.DataFrame): DataFrame containing a 'UNIX' column.
+        df (pd.DataFrame): DataFrame containing a 'UNIX' column.        df (pd.DataFrame): DataFrame containing a 'UNIX' column.
         Location (class): Longitude/Latitude of the location.
 
     Returns:
         pd.DataFrame: DataFrame with local time index and extracted datetime components.
     """
 
-    #Transform UNIX to normal timestamp
-    df = df.sort_values(by='UNIX', ascending=True)
+    #Transform UNIX to normal timestamp    #Transform UNIX to normal timestamp
+    df = df.sort_values(by='UNIX', ascending=True)   
     df['timestamp'] = pd.to_datetime(df['UNIX'], unit='s')
     
     # Extract Year, Day of Year, and Hour from the timestamp
@@ -163,7 +153,7 @@ def convert_UNIX(df, Location, year):
     
     # Drop the timestamp column
     df = df.drop(columns=['UNIX', 'timestamp'])
-    df = change_timestamp(df, Location)
+    df = change_timestamp(df, local_tz)
     df['timestamp'] = pd.to_datetime(df.index)
 
     ### Select only the wanted year
@@ -172,18 +162,11 @@ def convert_UNIX(df, Location, year):
       
     return df 
 
-def get_UNIX_range(Location, year):
+def get_UNIX_range(Location, year, local_tz):
     """
     Returns UNIX UTC timestamps for Jan 1, 00:00 and Feb 28, 23:30 in *local time* 
     for a given lat/lon. Returned times are in UTC as required by OpenWeather API.
     """
-
-    tf = TimezoneFinder()
-    tz_str = tf.timezone_at(lat=Location.latitude, lng=Location.longitude)
-    if tz_str is None:
-        raise ValueError("Could not determine timezone from coordinates.")
-
-    local_tz = pytz.timezone(tz_str)
 
     # Create local datetime objects
     start_local = local_tz.localize(datetime(year, 1, 1, 0, 0))
@@ -236,7 +219,7 @@ def align_df(df, year, Location):
 
     return matched_df
 
-def formatValidator(df, Location, year):
+def formatValidator(df, Location, year, local_tz):
     """
     Prepares the user input solar data for concatenation with the other data. 
     - Changes the timestamp to standardized
@@ -244,14 +227,14 @@ def formatValidator(df, Location, year):
     - Resamples for 30min 
     - Changes the year to correct value
     """
-    df = change_timestamp(df, Location)
+    df = change_timestamp(df, local_tz)
     df = align_df(df, year, Location)
     df = df.resample('30min').mean()
     df.index = df.index.map(lambda ts: ts.replace(year=year))
 
     return df
 
-def fetch_pollution(Location, year):
+def fetch_pollution(Location, design_year, local_tz):
     """
     Fetches hourly PM2.5 and PM10 air pollution data from OpenWeather's
     historical API for a given time range and location.
@@ -265,8 +248,9 @@ def fetch_pollution(Location, year):
         pd.DataFrame: Cleaned DataFrame with PM2.5, PM10, and local datetime index.
     """
     # MODIFY API TO CORRECT ACCOUNT
+    year = datetime.now().year - 1 
     api_key = 'fcc56e7d5838b4b21a971c7af302e544'
-    start_unix, end_unix = get_UNIX_range(Location, year)
+    start_unix, end_unix = get_UNIX_range(Location, year, local_tz)
     
     url = f'http://api.openweathermap.org/data/2.5/air_pollution/history?lat={Location.latitude}&lon={Location.longitude}&start={start_unix}&end={end_unix}&appid={api_key}'
     response = requests.get(url)
@@ -296,12 +280,12 @@ def fetch_pollution(Location, year):
             'PM10': pm10_list
         })
 
-    df = convert_UNIX(df, Location, year)
-    df.index = df.index.map(lambda ts: ts.replace(year=year-4))
+    df = convert_UNIX(df, local_tz, year)
+    df = repeat_df(df, design_year, freq="1h")
 
     return df
 
-def fetch_rain_data(Location, year):
+def fetch_wheather_data(Location, design_year, local_tz):
     """
     Fetches hourly precipitation data from NASA POWER API 
     for a given time range and location.
@@ -316,14 +300,17 @@ def fetch_rain_data(Location, year):
         pd.DataFrame: Cleaned DataFrame with PM2.5, PM10, and local datetime index.
     """
 
-  # Define the API endpoint and parameters
+    # Define the API endpoint and parameters
     base_url = "https://power.larc.nasa.gov/api/temporal/hourly/point"
-    start_date = f"{year}&0101"  # Start date (YYYYMMDD format)
-    end_date = f"{year}&1231"    # End date (single day for a smaller range)
-    parameters ="PRECTOTCORR" 
+    end_year = datetime.now().year
+    start_year = end_year - design_year
+    # Convert to strings in YYYY-MM-DD format
+    start_date_str = f"{start_year}0101"
+    end_date_str = f"{end_year-1}1231"
+    parameters ="PRECTOTCORR,T2M,WS10M"
     community = "RE"
 
-    url = f"{base_url}?latitude={Location.latitude}&longitude={Location.longitude}&start={start_date}&end={end_date}&parameters={parameters}&community={community}&format=CSV"
+    url = f"{base_url}?latitude={Location.latitude}&longitude={Location.longitude}&start={start_date_str}&end={end_date_str}&parameters={parameters}&community={community}&format=CSV"
     
     response = requests.get(url)
 
@@ -340,73 +327,83 @@ def fetch_rain_data(Location, year):
         print(f"Response: {response.text}")
 
     data_cl.rename(columns={
-                     'PRECTOTCORR': 'Rain',                  
+                     'PRECTOTCORR': 'Rain',
+                     'T2M': 'Temperature',
+                     'WS10M': 'Wind',               
                      'MO': 'Month',
                      'YEAR': 'Year',
                      'DY': 'Day',
                      'HR': 'Hour'}, inplace=True)
     
-    data_cl['Minute'] = 0 
-    df = change_timestamp(data_cl, Location)
+    data_cl['Minute'] = 0
+    df = change_timestamp(data_cl, local_tz)
 
     return df
 
-def solarPositions(df, Location, year):
+def solarPositions(df, Location):
     """
-    Adds solar zenith and azimuth angles to the DataFrame, based on location and year.
-    
+    Adds solar zenith and azimuth angles to the DataFrame using its own datetime index.
+
     Parameters:
-    - df: DataFrame with 30-min index (will be overwritten if not)
+    - df: DataFrame with timezone-aware datetime index
     - Location: object with .latitude and .longitude
-    - year: int
 
     Returns:
-    - df: with columns 'Solar Zenith' and 'Solar Azimuth' added
-    - solar_position: full solar position DataFrame (optional)
+    - df: DataFrame with 'Solar Zenith' and 'Solar Azimuth' columns added
     """
-
-    # --- Time and Location ---
-    tf = TimezoneFinder()
-    tz = tf.timezone_at(lng=Location.longitude, lat=Location.latitude)
-
-    # Ensure correct datetime index
-    times = pd.date_range(f"{year}-01-01 00:00", f"{year}-12-31 23:30", freq="30min", tz=tz)
     df = df.copy()
-    df = df.reindex(times)
 
-    # --- Compute solar position ---
+    # Compute altitude (elevation above sea level)
     alt = pvlib.location.lookup_altitude(Location.latitude, Location.longitude)
-    solar_pos = pvlib.solarposition.get_solarposition(times, Location.latitude, Location.longitude, altitude=alt)
 
-    # --- Add to DataFrame ---
+    # --- Solar position calculation ---
+    solar_pos = pvlib.solarposition.get_solarposition(
+        df.index, 
+        Location.latitude, 
+        Location.longitude, 
+        altitude=alt
+    )
+
+    # Add columns to DataFrame
     df["Solar Zenith"] = solar_pos["apparent_zenith"].values
     df["Solar Azimuth"] = solar_pos["azimuth"].values
 
     return df
 
-def fetch_dataFrame(Location, year, df_solar, progress_callback):
+def fetch_dataFrame(Location, design_year, df_solar, progress_callback):
     """
     Acquires the data from the different APIs, combined them into a unified dataframe and resamples them
     for a granularity of 30min
     """
+    tf = TimezoneFinder()
+    tz_str = tf.timezone_at(lat=Location.latitude, lng=Location.longitude)
+    local_tz = pytz.timezone(tz_str)
+
+    '''
     if df_solar is None:
-        df_irr = fetch_irradiation(Location, year)  #Rain data from 2017 to 2019
+        df_irr = fetch_irradiation(Location, design_year, local_tz)  #Rain data from 2017 to 2019
         print("Using API solar data")
     else:
-        df_irr = formatValidator(df_solar, Location, year)
-        print("Using user input solar data")
-
+        df_irr = formatValidator(df_solar, Location, datetime.now().year)
+        print("Using user input solar data")'''
     progress_callback(11)
-    df_pol = fetch_pollution(Location, year+4)  #PM data from 2021 to 2023
-    progress_callback(17)
-    df_rain = fetch_rain_data(Location, year)   #Rain data from 2017 to 2019
+    with ThreadPoolExecutor(max_workers=3) as executor:
+        fut_irr = executor.submit(fetch_irradiation, Location, design_year, local_tz)
+        fut_pol = executor.submit(fetch_pollution, Location, design_year, local_tz)
+        fut_rain = executor.submit(fetch_wheather_data, Location, design_year, local_tz)
+        df_irr = fut_irr.result()
+        df_pol = fut_pol.result()
+        df_rain = fut_rain.result()
     progress_callback(23)
+    print(df_irr)
+    print(df_pol)
+    print(df_rain)
     #Concatenate and re_sample
-    df_combined = pd.concat([df_irr, df_pol, df_rain])
+    df_combined = pd.concat([df_irr, df_pol, df_rain], axis=1)
     df_fin = df_combined.resample('30min').mean()
     df_fin = df_fin.interpolate(method='linear', limit_direction='both')
     progress_callback(29)
-    df_last = solarPositions(df_fin, Location, year) #Acquires solar positions and zenith
+    df_last = solarPositions(df_fin, Location) #Acquires solar positions and zenith
     progress_callback(35)
     
     return  df_last
@@ -631,6 +628,8 @@ def compute_power_slow(df, Panels, Location):
 
     df = fetch_power(df, Panels)
 
+    print(f"❗ NaNs at: {[ (df.index[i], df.columns[j]) for i, j in zip(*np.where(df.isna().values)) ]}")
+
     return df
 
 def compute_power_fast(df, Panels, Location):
@@ -669,11 +668,12 @@ def ENS_calc_slow(df, PCU, Battery):
     # --- Init any important values
     LOL_count = 0.
     ENS_count = 0.
-    battery_left = [0 for _ in range(len(df))]
-    battery_soc = [0 for _ in range(len(df))]
-    battery_cycle = [0 for _ in range(len(df))]
-    battery_soh = [0 for _ in range(len(df))]
-    cell_volt = [0 for _ in range(len(df))]
+    n = len(df)
+    battery_left = np.zeros(n)
+    battery_soc = np.zeros(n)
+    battery_cycle = np.zeros(n)
+    battery_soh = np.zeros(n)
+    cell_volt = np.zeros(n)
     model = BatteryModel(Battery)
     
     # Convert to NumPy for speed
@@ -698,23 +698,10 @@ def ENS_calc_slow(df, PCU, Battery):
         model.RunModel(temperature[i], battery_power[i])
         battery_left[i + 1], battery_soc[i + 1], battery_cycle[i+1], battery_soh[i+1], cell_volt[i+1] = model.getInfo()
 
-        # Check for NaN and exit if any variable is NaN
-        if (np.isnan(battery_left[i + 1]) or
-            np.isnan(battery_soc[i + 1]) or
-            np.isnan(battery_cycle[i + 1])):
-            print(f"NaN detected at step {i+1}. Stopping execution.")
-            exit(1)
-
-        #print(f"Step {i+1}: Battery Left = {battery_left[i+1]:.2f}%, SOC = {battery_soc[i+1]:.2f}%, Cycle = {battery_cycle[i+1]:.0f}")
-        # Check for NaN and exit if any variable is NaN
-
         ENS_count += max(0,load_power[i] * dt - output_power[i] * PCU.eta_pv_to_load * dt - PCU.eta_batt_to_load * (max(0,battery_left[i] - battery_left[i+1])))
     
-    LOLP_ratio = LOL_count / (df["Load Power"] > 0).sum()
     ENS_ratio = ENS_count/ (df["Load Power"].sum()*dt) # *dt: conversion W -> Wh
-    print(f"Source computed LOLP is {LOLP_ratio}")
-    print(f"Total Wh needed is {df["Load Power"].sum()*dt}")
-    print(f"The total ENS count is {ENS_count}")
+
     
 
     # Write results back to DataFrame
@@ -723,7 +710,7 @@ def ENS_calc_slow(df, PCU, Battery):
     df["Cycle"] = battery_cycle
     df["Battery SOH"] = battery_soh
 
-    return df, LOLP_ratio, ENS_ratio
+    return df,ENS_ratio
 
 
 def ENS_calc_fast(df, PCU, BatteryFast):
@@ -779,8 +766,6 @@ def SearchSpace(df):
     Ppv_min = round((E_daily / (PSH * eta_pv * step_pv))) * step_pv
     Ppv_max = round((2.75* E_daily / (PSH * eta_pv * step_pv))) * step_pv
 
-    print(f"E_daily: {E_daily:.2f} Wh")
-    print(f"PSH: {PSH:.2f} h")
     #print(f"Cbat_min = {Cbat_min}, Cbat_max = {Cbat_max}")
     #print(f"Ppv_min = {Ppv_min}, Ppv_max = {Ppv_max}")
     
@@ -788,55 +773,74 @@ def SearchSpace(df):
 
 # Dummy stand-in fitness function until user provides actual LOLP and cost model
 
-def addLoad(tables, year, Location):
-    
+def addLoad(tables, design_years, Location):
+    """
+    Build a multi-year load profile by repeating seasonal daily tables over `design_years` years,
+    starting from (current year - 1) and going backward.
+
+    Parameters:
+        tables (list of DataFrames): Seasonal tables with time ranges and power.
+        design_years (int): Number of years to repeat backward from last full year.
+        Location (object): Must have `latitude` and `longitude` attributes.
+
+    Returns:
+        Load object with multi-year DataFrame of load power.
+    """
+
     tf = TimezoneFinder()
-    tz = tf.timezone_at(lng=Location.longitude, lat=Location.latitude)
-    # Define date ranges for each season (India-style)
-    season_ranges = [
-        (datetime(year, 1, 1), datetime(year, 2, 28)),   # Winter
-        (datetime(year, 3, 1), datetime(year, 5, 31)),   # Spring
-        (datetime(year, 6, 1), datetime(year, 9, 30)),   # Monsoon
-        (datetime(year, 10, 1), datetime(year, 12, 31))  # Summer
-    ]
+    tz_str = tf.timezone_at(lng=Location.longitude, lat=Location.latitude)
+    local_tz = pytz.timezone(tz_str)
 
-    # Create full datetime index for the year (30-minute intervals)
-    full_index = pd.date_range(start=datetime(year, 1, 1),
-                               end=datetime(year, 12, 31, 23, 00),
-                               freq="30min",
-                               tz=pytz.timezone(tz))
-    
-    total_power = pd.Series(0, index=full_index)
+    end_year = datetime.now().year - 1
+    start_year = end_year - design_years + 1
 
-    for table_idx, (df, (start_date, end_date)) in enumerate(zip(tables, season_ranges)):
-        date = start_date
-        while date <= end_date:
-            for _, row in df.iterrows():
-                try:
-                    power = float(row["Power [W]"])
-                    from_time = datetime.strptime(row["From [xx:xx XM]"].strip(), "%I:%M %p").time()
-                    to_time   = datetime.strptime(row["To [xx:xx XM]"].strip(), "%I:%M %p").time()
+    all_years_power = []
 
-                    # Combine date with times, and localize to timezone
-                    start_dt = datetime.combine(date, from_time)
-                    end_dt   = datetime.combine(date, to_time)
-                    if end_dt <= start_dt:
-                        end_dt += timedelta(days=1)
+    for year in range(start_year, end_year + 1):
+        # Define season ranges for this year
+        season_ranges = [
+            (datetime(year, 1, 1), datetime(year, 2, 28)),   # Winter
+            (datetime(year, 3, 1), datetime(year, 5, 31)),   # Spring
+            (datetime(year, 6, 1), datetime(year, 9, 30)),   # Monsoon
+            (datetime(year, 10, 1), datetime(year, 12, 31))  # Summer
+        ]
 
-                    start_dt = pytz.timezone(tz).localize(start_dt)
-                    end_dt   = pytz.timezone(tz).localize(end_dt)
+        # Create full datetime index for this year (30-minute intervals)
+        full_index = pd.date_range(start=datetime(year, 1, 1),
+                                   end=datetime(year, 12, 31, 23, 30),
+                                   freq="30min",
+                                   tz=local_tz)
 
-                    # Get 30min intervals between start and end
-                    ts_range = pd.date_range(start=start_dt, end=end_dt - timedelta(seconds=1), freq="30min", tz=pytz.timezone(tz))
+        total_power = pd.Series(0, index=full_index)
 
-                    total_power.loc[ts_range] += power
+        for df, (start_date, end_date) in zip(tables, season_ranges):
+            date = start_date
+            while date <= end_date:
+                for _, row in df.iterrows():
+                    try:
+                        power = float(row["Power [W]"])
+                        from_time = datetime.strptime(row["From [xx:xx XM]"].strip(), "%I:%M %p").time()
+                        to_time   = datetime.strptime(row["To [xx:xx XM]"].strip(), "%I:%M %p").time()
 
-                except Exception as e:
-                    print(f"Skipping row due to error: {e}")
-            date += timedelta(days=1)
+                        start_dt = datetime.combine(date, from_time)
+                        end_dt   = datetime.combine(date, to_time)
+                        if end_dt <= start_dt:
+                            end_dt += timedelta(days=1)
 
-    df_power = total_power.to_frame(name="Load Power")
+                        start_dt = local_tz.localize(start_dt)
+                        end_dt   = local_tz.localize(end_dt)
 
+                        ts_range = pd.date_range(start=start_dt, end=end_dt - timedelta(seconds=1), freq="30min", tz=local_tz)
+                        total_power.loc[ts_range] += power
+
+                    except Exception as e:
+                        print(f"[{year}] Skipping row due to error: {e}")
+                date += timedelta(days=1)
+
+        all_years_power.append(total_power)
+
+    # Combine all years into one DataFrame
+    df_power = pd.concat(all_years_power).to_frame(name="Load Power")
     return Load("My Load", df_power)
 
 def findMaxSyst(df, Location, pv_eff,  cleaning_freq, rain_thresh, eta_cable, step_pv=25, step_bat=100):
@@ -998,64 +1002,145 @@ def optimizer(longitude, latitude, tabs, price_W_pv, price_Wh_bat, eta_tot,
 
     return pareto_points
 
-def repeat_df(df, num_years, freq="30min"):
+def safe_replace_year(ts: Timestamp, new_year: int) -> Timestamp:
     """
-    Repeat a time-indexed DataFrame for a given number of years, filling missing timestamps.
+    Safely replaces the year in a timestamp, handling leap day issues.
+    If the date is February 29 and the new year is not a leap year,
+    it shifts the date to March 1.
+    """
+    try:
+        return ts.replace(year=new_year)
+    except ValueError:
+        if ts.month == 2 and ts.day == 29:
+            return ts.replace(year=new_year, month=3, day=1)
+        else:
+            raise
 
+def repeat_df(df, num_repeats, freq="30min"):
     """
+    Repeats a multi-year DataFrame backward in time by shifting the entire dataset.
+
+    Parameters:
+        df (pd.DataFrame): Original time-indexed DataFrame (multi-year).
+        num_repeats (int): Number of total copies (including the original).
+        freq (str): Frequency for interpolation.
+
+    Returns:
+        pd.DataFrame: Concatenated multi-year DataFrame.
+    """
+    df = df.copy()
+    tz = df.index.tz
+    years_covered = sorted({ts.year for ts in df.index})
+    duration_years = years_covered[-1] - years_covered[0] + 1
+    start_year = df.index[0].year
+
     dfs = []
-    for year in range(num_years):
-        offset = pd.DateOffset(years=year)
-        df_offset = df.copy()
-        df_offset.index = df.index + offset
-        dfs.append(df_offset)
 
-    df_repeated = pd.concat(dfs)
+    for i in reversed(range(num_repeats)):
+        shift_years = duration_years * (num_repeats - 1 - i)
+        target_year = start_year - shift_years
+
+        def shift_year(ts):
+            try:
+                return ts.replace(year=ts.year - shift_years)
+            except ValueError:
+                # Handles leap year issues (Feb 29 → Feb 28)
+                return ts.replace(month=2, day=28, year=ts.year - shift_years)
+
+        df_shifted = df.copy()
+        if shift_years > 0:
+            df_shifted.index = df.index.map(shift_year)
+        dfs.append(df_shifted)
+
+    df_repeated = pd.concat(dfs).sort_index()
+
+    # Remove duplicates from Feb 29 conflict
+    df_repeated = df_repeated[~df_repeated.index.duplicated(keep='first')]
+
+    # Reindex to fill small gaps
     full_index = pd.date_range(
         start=df_repeated.index.min(),
         end=df_repeated.index.max(),
-        freq=freq
+        freq=freq,
+        tz=tz
     )
     df_repeated = df_repeated.reindex(full_index)
     df_repeated.interpolate(method="time", inplace=True)
 
-    print(df_repeated.head())
-    print(df_repeated.tail(100))
-
     return df_repeated
 
-def batteryAging(df, PCU, Battery, design_year = 15):
-    #Find the df of the battery over designed years
-    df = repeat_df(df, design_year)
-    bat_df,_ ,_ = ENS_calc_slow(df, PCU, Battery)
+def drop_last_n_years(df, n=5):
+    last_timestamp = df.index.max()
+    cutoff_year = last_timestamp.year - n + 1
+    return df[df.index.year < cutoff_year]
 
-    #Find the expected life of the battery
+def batteryAging(df, PCU, Battery, design_year=15):
+    """
+    Extends battery simulation beyond design life using same input pattern,
+    continuing from the final battery state.
+
+    Parameters:
+        df (pd.DataFrame): Full simulation result from ENS_calc_slow over design_years.
+        PCU (object): The PCU used in the simulation.
+        Battery (object): Battery object, which can be copied or reset.
+        design_year (int): The number of design years originally simulated.
+
+    Returns:
+        bat_df_ext (DataFrame): Battery SOH and cycle trace (entire extended simulation).
+        expected_time (str): Estimated life (e.g. '17.3' or '+45').
+    """
+
+    # STEP - Extract the signal data to run PCU + Battery simulation
+    signal_df = df[["Load Power", "Output Power", "Temperature"]]
+    base_year_duration = (signal_df.index[-1] - signal_df.index[0]).total_seconds()
+    base_years = base_year_duration / (3600 * 24 * 365)
+
+    # STEP — create extension df (e.g. 2× more years) total df will be of size (extension_factor + 1) years
+    extension_factor = 2
+    df_extension = repeat_df(signal_df, extension_factor)
+    print(df_extension)
+
+    # STEP — simulate only the new years using final battery state
+    bat_df_full, _ = ENS_calc_slow(df_extension, PCU, Battery)
+    bat_df_full.sort_index(inplace=True)
+    bat_df_full = bat_df_full[~bat_df_full.index.duplicated(keep='first')]
+
+    # STEP — determine when battery SOH drops below threshold
     threshold = 0.8
-    threshold_indices = bat_df.index[bat_df["Battery Left"] < threshold]
-
-    if len(threshold_indices) > 0:
-        first_index = threshold_indices[0]
-        time_elapsed_hours = (first_index - bat_df.index[0]).total_seconds() / 3600
-        expected_time = str(round(time_elapsed_hours / (24 * 365),1))
+    below_thresh = bat_df_full[bat_df_full["Battery Left"] < threshold]
+    if not below_thresh.empty:
+        first_failure = below_thresh.index[0]
+        hours_to_fail = (first_failure - bat_df_full.index[0]).total_seconds() / 3600
+        expected_life_years = round(hours_to_fail / (24 * 365), 1)
+        expected_time = str(expected_life_years)
     else:
-        expected_time = f'+{design_year}'
+        expected_time = f'+{int(base_years * (1 + extension_factor))}'
+
+    return bat_df_full[["Cycle", "Battery SOH"]], expected_time
 
 
-    return  bat_df[["Cycle", "Battery SOH"]], expected_time
+def gross_mass(capacity):
+    return 0.275*capacity + 3.13
+
+def gross_height(capacity):
+    return (0.293*capacity + 171.31)*10
 
 
-def verifier(longitude, latitude, tabs, power, area, 
-            bat_capa, bat_lifetime, bat_cycle, bat_height, bat_series, 
-            bat_mass, bat_para, pv_num, soc_min, pcu_charge, pcu_inv, alpha, cleaningfreq,
-            rainthresh, eta_tot, pcu_current, eta_cable, progress_callback, eta_load, df_solar = None):
+def verifier(longitude, latitude, tabs, power, bat_capa, bat_lifetime, bat_cycle, 
+            bat_series, bat_para, pv_num, soc_min, pcu_charge, pcu_inv, alpha, cleaningfreq,
+            rainthresh, eta_tot, pcu_current, eta_cable, progress_callback, eta_load, design_year, 
+            df_solar = None):
     
     # -- Define useful instances ---
-    year = 2018
+
+    import time
+
+    t1 = time.perf_counter()
     
     loc = Location(longitude, latitude)
 
     mybat = Battery(C_nom = bat_capa, SOC_min = soc_min/100, 
-                    Mass = bat_mass, Bat_height = bat_height, 
+                    Mass = gross_mass(bat_capa), Bat_height = gross_height(bat_capa), 
                     Lifetime = bat_lifetime, Ziec = bat_cycle, 
                     Soc_init = 0.5, n_para = bat_para, 
                     n_serie = bat_series)
@@ -1065,62 +1150,79 @@ def verifier(longitude, latitude, tabs, power, area,
               eta_CC = pcu_charge/100)
     
     mypv = Panels(power = power, eta_tot = eta_tot, 
-                  name=None, alpha=alpha/100, 
-                  area=area, string_num=pv_num, 
+                  name=None, alpha=alpha/100, string_num=pv_num, 
                   string_dist=1, clean_freq = cleaningfreq, 
                   rainthresh = rainthresh)
     
+    t2 = time.perf_counter()
+    print(f"[INIT] Setup time: {t2 - t1:.4f} s")
+    
+    t3 = time.perf_counter()
     # -- Fetch ENS and LOLP
-    myload = addLoad(tabs,year,loc)
-    df = fetch_dataFrame(loc, 2018, df_solar, progress_callback)
+    myload = addLoad(tabs,design_year,loc)
+    t4 = time.perf_counter()
+    print(f"[LOAD] Setup time: {t4 - t3:.4f} s")
+
+    t5 = time.perf_counter()
+    df = fetch_dataFrame(loc, design_year, df_solar, progress_callback)
+    t6 = time.perf_counter()
+    print(f"[FETCH] dataframe: {t6 - t5:.4f} s")
     df = pd.concat([df, myload.df], axis=1)
     df["Load Power"] = df["Load Power"] / (eta_load / 100)
+    t7 = time.perf_counter()
+    print(f"[CONCAT] Concat dataframes: {t7 - t6:.4f} s")
     df = compute_power_slow(df, mypv, loc)
+    t8 = time.perf_counter()
+    print(f"[POWER] Power vector computation: {t8 - t7:.4f} s")
+
     progress_callback(52)
-    df, LOLP_ratio, ENS_ratio = ENS_calc_slow(df, pcu, mybat)
+    t9 = time.perf_counter()
+    df, ENS_ratio = ENS_calc_slow(df, pcu, mybat)
+    t10 = time.perf_counter()
+    print(f"[ENS] ENS computation: {t10 - t9:.4f} s")
     progress_callback(64)
     
     # -- Fetch battery aging information
-    pcu_aging = PCU(eta_cable = eta_cable, max_charge_current=pcu_current, 
+    '''pcu_aging = PCU(eta_cable = eta_cable, max_charge_current=pcu_current, 
                     pack_voltage = 12*bat_series, eta_inverter = pcu_inv/100, 
                     eta_CC = pcu_charge/100)
     
     mybat_aging = Battery(C_nom = bat_capa, SOC_min = soc_min/100, 
-                          Mass = bat_mass, Bat_height = bat_height, 
+                          Mass = gross_mass(bat_capa), Bat_height = gross_height(bat_capa), 
                           Lifetime = bat_lifetime, Ziec = bat_cycle, 
                           Soc_init = 0.5, n_para = bat_para, 
-                          n_serie = bat_series)
-    
-    bat_df, expected_time = batteryAging(df, pcu_aging, mybat_aging)
+                          n_serie = bat_series)'''
+    t9 = time.perf_counter()
+    bat_df, expected_time = batteryAging(df, pcu, mybat)
+    t10 = time.perf_counter()
+    print(f"[AGING] Battery agging computation: {t10 - t9:.4f} s")
     progress_callback(93)
-    print(f"Source verifier computed ENS is {ENS_ratio}")
-    return df, LOLP_ratio, ENS_ratio, bat_df, expected_time
+    return df, ENS_ratio, bat_df, expected_time
 
 
 
-
-'''loc = Location(latitude = 23.49, longitude = 93.34)
+'''
+loc = Location(latitude = 23.49, longitude = 93.34)
 panel_slow = Panels(name="Panneau123", power=4400, alpha=-0.29/100, area =1.039 * 2.047, string_num=4, string_dist=1, price=1000)
 mybat_slow = Battery(C_nom = 500, SOC_min = 0.2 , Mass = 30.2 , Bat_height = 0.216, Lifetime = 20, Ziec = 1500, Soc_init=0.5, n_para = 3, n_serie = 1)
 mypcu_slow = PCU("company", "model", 5000, "MPPT", 1, 48, 0.92, 0.88)
 df = pd.DataFrame(index=pd.date_range("2018-01-01 00:00", "2018-12-31 23:00", freq="30min", tz="Asia/Kolkata"))
 df["Load Power"] = df.index.to_series().apply(lambda ts: 1500 if 3 <= ts.hour < 10 else 0)
 myload = Load("Load", df)
-df = fetch_dataFrame(loc, 2018, progress_callback)
+df = fetch_dataFrame(loc, 5, None, progress_callback)
 print("Done fetching")
 df = pd.concat([df, myload.df], axis=1)
 df = compute_power_slow(df, panel_slow, loc)
 print("Done computing power")
-#df, LOLP, ENS = ENS_calc_slow(df, mypcu_slow, mybat_slow)
-design_year = 5
-print('Done with ENS')
+df, LOLP, ENS = ENS_calc_slow(df, mypcu_slow, mybat_slow)
+print(ENS)'''
 #mybat_slow2 = Battery(C_nom = 100, SOC_min = 0.2 , Mass = 30.2 , Bat_height = 0.216, Lifetime = 20, Ziec = 1500, Soc_init=0.5, n_para = 3, n_serie = 1)
 #mypcu_slow2 = PCU("company", "model", 5000, "MPPT", 1, 48, 0.92, 0.88)
-bat_df, expected_time = batteryAging(df, design_year, mypcu_slow, mybat_slow)
+#bat_df, expected_time = batteryAging(df, design_year + 5, mypcu_slow, mybat_slow)
 #print(LOLP, ENS)
-print(expected_time)
+#print(expected_time)
 
-
+'''
     # Create the figure
 fig, ax1 = plt.subplots(figsize=(10, 6))
 
@@ -1283,3 +1385,38 @@ df = compute_power(df, panel, loc, 2018)
 #df = fetch_dataFrame(loc, 2018)
 #df = compute_power(df, panel, loc, 2018)
 #lolp = LOLP_calculation(df['Output Power'],df['Temperature'], myload, mypcu, mybat)'''
+
+
+'''
+    
+    API_KEY = 'JkGTQdgblLszU34Nu5qsWwskgkTQ8CwqWQfuNagI'
+    wkt_point = f'POINT({Location.longitude} {Location.latitude})'
+    url = 'https://developer.nrel.gov/api/nsrdb/v2/solar/msg-iodc-download.csv'
+
+    params = {
+        'api_key': API_KEY,
+        'wkt': wkt_point,
+        'names': year,
+        'interval': '60',
+        'utc': 'false',
+        'attributes': 'dni,dhi,ghi,air_temperature,wind_speed',
+        'email': 'basti.gst@outlook.com',
+        'full_name': 'Bastien Gaussent',
+        'affiliation': 'EPFL',
+        'reason': 'Solar modeling',
+        'mailing_list': 'false'
+    }
+
+    response = requests.get(url, params=params)
+
+    if response.status_code == 200:
+        df = pd.read_csv(io.StringIO(response.text), skiprows=2)
+    else:
+        print(f"Request failed with status code {response.status_code}")
+        print(response.text)
+        return None
+
+    #Change the index to standardized timestamp
+    df = change_timestamp(df, Location)
+    #Rename columns for practicality
+    df.rename(columns={'GHI': 'GHI_sat','Wind Speed': 'Wind'}, inplace=True)'''

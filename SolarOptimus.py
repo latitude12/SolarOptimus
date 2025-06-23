@@ -34,7 +34,7 @@ import matplotlib.cm as cm
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
-            MainWindow.setObjectName(u"SolarOptimus")
+            MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(791, 598)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
@@ -293,79 +293,61 @@ class Ui_MainWindow(object):
         self.groupBox.setGeometry(QRect(40, 40, 381, 201))
         self.textEdit = QTextEdit(self.groupBox)
         self.textEdit.setObjectName(u"textEdit")
-        self.textEdit.setGeometry(QRect(20, 60, 104, 21))
-        self.textEdit_2 = QTextEdit(self.groupBox)
-        self.textEdit_2.setObjectName(u"textEdit_2")
-        self.textEdit_2.setGeometry(QRect(20, 140, 104, 21))
+        self.textEdit.setGeometry(QRect(20, 50, 104, 21))
         self.textEdit_3 = QTextEdit(self.groupBox)
         self.textEdit_3.setObjectName(u"textEdit_3")
-        self.textEdit_3.setGeometry(QRect(170, 60, 104, 21))
+        self.textEdit_3.setGeometry(QRect(20, 150, 104, 21))
         self.textEdit_4 = QTextEdit(self.groupBox)
         self.textEdit_4.setObjectName(u"textEdit_4")
-        self.textEdit_4.setGeometry(QRect(170, 140, 104, 21))
+        self.textEdit_4.setGeometry(QRect(20, 100, 104, 21))
         self.label_5 = QLabel(self.groupBox)
         self.label_5.setObjectName(u"label_5")
-        self.label_5.setGeometry(QRect(20, 40, 111, 16))
+        self.label_5.setGeometry(QRect(140, 50, 111, 16))
         self.label_6 = QLabel(self.groupBox)
         self.label_6.setObjectName(u"label_6")
-        self.label_6.setGeometry(QRect(170, 40, 231, 16))
-        self.label_7 = QLabel(self.groupBox)
-        self.label_7.setObjectName(u"label_7")
-        self.label_7.setGeometry(QRect(20, 120, 111, 16))
+        self.label_6.setGeometry(QRect(140, 150, 231, 16))
         self.label_8 = QLabel(self.groupBox)
         self.label_8.setObjectName(u"label_8")
-        self.label_8.setGeometry(QRect(170, 120, 111, 16))
+        self.label_8.setGeometry(QRect(140, 100, 201, 16))
         self.groupBox_2 = QGroupBox(self.tab_2)
         self.groupBox_2.setObjectName(u"groupBox_2")
-        self.groupBox_2.setGeometry(QRect(120, 280, 571, 211))
+        self.groupBox_2.setGeometry(QRect(120, 280, 581, 211))
         self.textEdit_5 = QTextEdit(self.groupBox_2)
         self.textEdit_5.setObjectName(u"textEdit_5")
-        self.textEdit_5.setGeometry(QRect(50, 80, 104, 21))
-        self.textEdit_6 = QTextEdit(self.groupBox_2)
-        self.textEdit_6.setObjectName(u"textEdit_6")
-        self.textEdit_6.setGeometry(QRect(50, 120, 104, 21))
-        self.textEdit_7 = QTextEdit(self.groupBox_2)
-        self.textEdit_7.setObjectName(u"textEdit_7")
-        self.textEdit_7.setGeometry(QRect(50, 160, 104, 21))
+        self.textEdit_5.setGeometry(QRect(40, 100, 104, 21))
         self.textEdit_8 = QTextEdit(self.groupBox_2)
         self.textEdit_8.setObjectName(u"textEdit_8")
-        self.textEdit_8.setGeometry(QRect(50, 40, 104, 21))
+        self.textEdit_8.setGeometry(QRect(40, 50, 104, 21))
         self.textEdit_9 = QTextEdit(self.groupBox_2)
         self.textEdit_9.setObjectName(u"textEdit_9")
-        self.textEdit_9.setGeometry(QRect(310, 40, 104, 21))
+        self.textEdit_9.setGeometry(QRect(310, 50, 104, 21))
         self.textEdit_10 = QTextEdit(self.groupBox_2)
         self.textEdit_10.setObjectName(u"textEdit_10")
-        self.textEdit_10.setGeometry(QRect(310, 80, 104, 21))
+        self.textEdit_10.setGeometry(QRect(310, 100, 104, 21))
         self.textEdit_11 = QTextEdit(self.groupBox_2)
         self.textEdit_11.setObjectName(u"textEdit_11")
-        self.textEdit_11.setGeometry(QRect(310, 120, 104, 21))
+        self.textEdit_11.setGeometry(QRect(310, 150, 104, 21))
         self.textEdit_12 = QTextEdit(self.groupBox_2)
         self.textEdit_12.setObjectName(u"textEdit_12")
-        self.textEdit_12.setGeometry(QRect(310, 160, 104, 21))
+        self.textEdit_12.setGeometry(QRect(40, 150, 104, 21))
         self.label_11 = QLabel(self.groupBox_2)
         self.label_11.setObjectName(u"label_11")
-        self.label_11.setGeometry(QRect(170, 40, 141, 16))
+        self.label_11.setGeometry(QRect(160, 50, 141, 16))
         self.label_12 = QLabel(self.groupBox_2)
         self.label_12.setObjectName(u"label_12")
-        self.label_12.setGeometry(QRect(170, 80, 111, 16))
-        self.label_13 = QLabel(self.groupBox_2)
-        self.label_13.setObjectName(u"label_13")
-        self.label_13.setGeometry(QRect(170, 120, 111, 16))
-        self.label_14 = QLabel(self.groupBox_2)
-        self.label_14.setObjectName(u"label_14")
-        self.label_14.setGeometry(QRect(170, 160, 111, 16))
+        self.label_12.setGeometry(QRect(160, 100, 111, 16))
         self.label_15 = QLabel(self.groupBox_2)
         self.label_15.setObjectName(u"label_15")
-        self.label_15.setGeometry(QRect(430, 40, 111, 16))
+        self.label_15.setGeometry(QRect(430, 50, 111, 16))
         self.label_16 = QLabel(self.groupBox_2)
         self.label_16.setObjectName(u"label_16")
-        self.label_16.setGeometry(QRect(430, 80, 111, 16))
+        self.label_16.setGeometry(QRect(430, 100, 111, 16))
         self.label_17 = QLabel(self.groupBox_2)
         self.label_17.setObjectName(u"label_17")
-        self.label_17.setGeometry(QRect(430, 120, 131, 16))
+        self.label_17.setGeometry(QRect(430, 150, 131, 16))
         self.label_18 = QLabel(self.groupBox_2)
         self.label_18.setObjectName(u"label_18")
-        self.label_18.setGeometry(QRect(430, 160, 131, 16))
+        self.label_18.setGeometry(QRect(160, 150, 131, 16))
         self.groupBox_3 = QGroupBox(self.tab_2)
         self.groupBox_3.setObjectName(u"groupBox_3")
         self.groupBox_3.setGeometry(QRect(460, 40, 311, 201))
@@ -618,167 +600,163 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(2)
         self.tabWidget_2.setCurrentIndex(0)
-        self.tabWidget_3.setCurrentIndex(0)
+        self.tabWidget_3.setCurrentIndex(1)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
     # setupUi
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(QCoreApplication.translate("Solar Optimus", u"Solar Optimus", None))
+        MainWindow.setWindowTitle(QCoreApplication.translate("SolarOptimus", u"SolarOptimus", None))
         ___qtablewidgetitem = self.tableWidget.horizontalHeaderItem(0)
-        ___qtablewidgetitem.setText(QCoreApplication.translate("Solar Optimus", u"Load Name", None));
+        ___qtablewidgetitem.setText(QCoreApplication.translate("SolarOptimus", u"Load Name", None));
         ___qtablewidgetitem1 = self.tableWidget.horizontalHeaderItem(1)
-        ___qtablewidgetitem1.setText(QCoreApplication.translate("Solar Optimus", u"Power [W]", None));
+        ___qtablewidgetitem1.setText(QCoreApplication.translate("SolarOptimus", u"Power [W]", None));
         ___qtablewidgetitem2 = self.tableWidget.horizontalHeaderItem(2)
-        ___qtablewidgetitem2.setText(QCoreApplication.translate("Solar Optimus", u"Time of Usage [h]", None));
+        ___qtablewidgetitem2.setText(QCoreApplication.translate("SolarOptimus", u"Time of Usage [h]", None));
         ___qtablewidgetitem3 = self.tableWidget.horizontalHeaderItem(3)
-        ___qtablewidgetitem3.setText(QCoreApplication.translate("Solar Optimus", u"From [xx:xx XM]", None));
+        ___qtablewidgetitem3.setText(QCoreApplication.translate("SolarOptimus", u"From [xx:xx XM]", None));
         ___qtablewidgetitem4 = self.tableWidget.horizontalHeaderItem(4)
-        ___qtablewidgetitem4.setText(QCoreApplication.translate("Solar Optimus", u"To [xx:xx XM]", None));
-        self.pushButton_2.setText(QCoreApplication.translate("Solar Optimus", u"Add Load", None))
-        self.pushButton_3.setText(QCoreApplication.translate("Solar Optimus", u"Remove Load", None))
-        self.label.setText(QCoreApplication.translate("Solar Optimus", u"Enter a sample day load profile depending on the seaon", None))
-        self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_6), QCoreApplication.translate("Solar Optimus", u"Winter", None))
+        ___qtablewidgetitem4.setText(QCoreApplication.translate("SolarOptimus", u"To [xx:xx XM]", None));
+        self.pushButton_2.setText(QCoreApplication.translate("SolarOptimus", u"Add Load", None))
+        self.pushButton_3.setText(QCoreApplication.translate("SolarOptimus", u"Remove Load", None))
+        self.label.setText(QCoreApplication.translate("SolarOptimus", u"Enter a sample day load profile depending on the seaon", None))
+        self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_6), QCoreApplication.translate("SolarOptimus", u"Winter", None))
         ___qtablewidgetitem5 = self.tableWidget_3.horizontalHeaderItem(0)
-        ___qtablewidgetitem5.setText(QCoreApplication.translate("Solar Optimus", u"Load Name", None));
+        ___qtablewidgetitem5.setText(QCoreApplication.translate("SolarOptimus", u"Load Name", None));
         ___qtablewidgetitem6 = self.tableWidget_3.horizontalHeaderItem(1)
-        ___qtablewidgetitem6.setText(QCoreApplication.translate("Solar Optimus", u"Power [W]", None));
+        ___qtablewidgetitem6.setText(QCoreApplication.translate("SolarOptimus", u"Power [W]", None));
         ___qtablewidgetitem7 = self.tableWidget_3.horizontalHeaderItem(2)
-        ___qtablewidgetitem7.setText(QCoreApplication.translate("Solar Optimus", u"Time of Usage [h]", None));
+        ___qtablewidgetitem7.setText(QCoreApplication.translate("SolarOptimus", u"Time of Usage [h]", None));
         ___qtablewidgetitem8 = self.tableWidget_3.horizontalHeaderItem(3)
-        ___qtablewidgetitem8.setText(QCoreApplication.translate("Solar Optimus", u"From [xx:xx XM]", None));
+        ___qtablewidgetitem8.setText(QCoreApplication.translate("SolarOptimus", u"From [xx:xx XM]", None));
         ___qtablewidgetitem9 = self.tableWidget_3.horizontalHeaderItem(4)
-        ___qtablewidgetitem9.setText(QCoreApplication.translate("Solar Optimus", u"To [xx:xx XM]", None));
-        self.pushButton_7.setText(QCoreApplication.translate("Solar Optimus", u"Add Load", None))
-        self.pushButton_6.setText(QCoreApplication.translate("Solar Optimus", u"Remove Load", None))
-        self.label_2.setText(QCoreApplication.translate("Solar Optimus", u"Enter a sample day load profile depending on the seaon", None))
-        self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_7), QCoreApplication.translate("Solar Optimus", u"Spring", None))
+        ___qtablewidgetitem9.setText(QCoreApplication.translate("SolarOptimus", u"To [xx:xx XM]", None));
+        self.pushButton_7.setText(QCoreApplication.translate("SolarOptimus", u"Add Load", None))
+        self.pushButton_6.setText(QCoreApplication.translate("SolarOptimus", u"Remove Load", None))
+        self.label_2.setText(QCoreApplication.translate("SolarOptimus", u"Enter a sample day load profile depending on the seaon", None))
+        self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_7), QCoreApplication.translate("SolarOptimus", u"Spring", None))
         ___qtablewidgetitem10 = self.tableWidget_4.horizontalHeaderItem(0)
-        ___qtablewidgetitem10.setText(QCoreApplication.translate("Solar Optimus", u"Load Name", None));
+        ___qtablewidgetitem10.setText(QCoreApplication.translate("SolarOptimus", u"Load Name", None));
         ___qtablewidgetitem11 = self.tableWidget_4.horizontalHeaderItem(1)
-        ___qtablewidgetitem11.setText(QCoreApplication.translate("Solar Optimus", u"Power [W]", None));
+        ___qtablewidgetitem11.setText(QCoreApplication.translate("SolarOptimus", u"Power [W]", None));
         ___qtablewidgetitem12 = self.tableWidget_4.horizontalHeaderItem(2)
-        ___qtablewidgetitem12.setText(QCoreApplication.translate("Solar Optimus", u"Time of Usage [h]", None));
+        ___qtablewidgetitem12.setText(QCoreApplication.translate("SolarOptimus", u"Time of Usage [h]", None));
         ___qtablewidgetitem13 = self.tableWidget_4.horizontalHeaderItem(3)
-        ___qtablewidgetitem13.setText(QCoreApplication.translate("Solar Optimus", u"From [xx:xx XM]", None));
+        ___qtablewidgetitem13.setText(QCoreApplication.translate("SolarOptimus", u"From [xx:xx XM]", None));
         ___qtablewidgetitem14 = self.tableWidget_4.horizontalHeaderItem(4)
-        ___qtablewidgetitem14.setText(QCoreApplication.translate("Solar Optimus", u"To [xx:xx XM]", None));
-        self.pushButton_8.setText(QCoreApplication.translate("Solar Optimus", u"Remove Load", None))
-        self.pushButton_9.setText(QCoreApplication.translate("Solar Optimus", u"Add Load", None))
-        self.label_3.setText(QCoreApplication.translate("Solar Optimus", u"Enter a sample day load profile depending on the seaon", None))
-        self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.Mansoon), QCoreApplication.translate("Solar Optimus", u"Mansoon", None))
+        ___qtablewidgetitem14.setText(QCoreApplication.translate("SolarOptimus", u"To [xx:xx XM]", None));
+        self.pushButton_8.setText(QCoreApplication.translate("SolarOptimus", u"Remove Load", None))
+        self.pushButton_9.setText(QCoreApplication.translate("SolarOptimus", u"Add Load", None))
+        self.label_3.setText(QCoreApplication.translate("SolarOptimus", u"Enter a sample day load profile depending on the seaon", None))
+        self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.Mansoon), QCoreApplication.translate("SolarOptimus", u"Mansoon", None))
         ___qtablewidgetitem15 = self.tableWidget_5.horizontalHeaderItem(0)
-        ___qtablewidgetitem15.setText(QCoreApplication.translate("Solar Optimus", u"Load Name", None));
+        ___qtablewidgetitem15.setText(QCoreApplication.translate("SolarOptimus", u"Load Name", None));
         ___qtablewidgetitem16 = self.tableWidget_5.horizontalHeaderItem(1)
-        ___qtablewidgetitem16.setText(QCoreApplication.translate("Solar Optimus", u"Power [W]", None));
+        ___qtablewidgetitem16.setText(QCoreApplication.translate("SolarOptimus", u"Power [W]", None));
         ___qtablewidgetitem17 = self.tableWidget_5.horizontalHeaderItem(2)
-        ___qtablewidgetitem17.setText(QCoreApplication.translate("Solar Optimus", u"Time of Usage [h]", None));
+        ___qtablewidgetitem17.setText(QCoreApplication.translate("SolarOptimus", u"Time of Usage [h]", None));
         ___qtablewidgetitem18 = self.tableWidget_5.horizontalHeaderItem(3)
-        ___qtablewidgetitem18.setText(QCoreApplication.translate("Solar Optimus", u"From [xx:xx XM]", None));
+        ___qtablewidgetitem18.setText(QCoreApplication.translate("SolarOptimus", u"From [xx:xx XM]", None));
         ___qtablewidgetitem19 = self.tableWidget_5.horizontalHeaderItem(4)
-        ___qtablewidgetitem19.setText(QCoreApplication.translate("Solar Optimus", u"To [xx:xx XM]", None));
-        self.pushButton_11.setText(QCoreApplication.translate("Solar Optimus", u"Add Load", None))
-        self.pushButton_10.setText(QCoreApplication.translate("Solar Optimus", u"Remove Load", None))
-        self.label_4.setText(QCoreApplication.translate("Solar Optimus", u"Enter a sample day load profile depending on the seaon", None))
-        self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_10), QCoreApplication.translate("Solar Optimus", u"Summer", None))
-        self.pushButton.setText(QCoreApplication.translate("Solar Optimus", u"Copy Sample to other seasons", None))
-        self.groupBox_4.setTitle(QCoreApplication.translate("Solar Optimus", u"System Info", None))
-        self.label_19.setText(QCoreApplication.translate("Solar Optimus", u"System Longitude", None))
-        self.label_20.setText(QCoreApplication.translate("Solar Optimus", u"System Latitude", None))
-        self.label_21.setText(QCoreApplication.translate("Solar Optimus", u"Designed Years", None))
-        self.pushButton_18.setText(QCoreApplication.translate("Solar Optimus", u"Browse Files", None))
-        self.label_53.setText(QCoreApplication.translate("Solar Optimus", u"OPTIONAL: Add your solar data file in .csv form. Verify csv compatibility in user manual !", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QCoreApplication.translate("Solar Optimus", u"1 - Load Profile", None))
-        self.checkBox.setText(QCoreApplication.translate("Solar Optimus", u"Critical (0%-1% ENSP)", None))
-        self.checkBox_2.setText(QCoreApplication.translate("Solar Optimus", u"High (1%-4% ENSP)", None))
-        self.checkBox_3.setText(QCoreApplication.translate("Solar Optimus", u"Medium (4%-6% ENSP)", None))
-        self.checkBox_4.setText(QCoreApplication.translate("Solar Optimus", u"Basic (6%-10% ENSP)", None))
-        self.checkBox_5.setText(QCoreApplication.translate("Solar Optimus", u"Minimal (>10% ENSP)", None))
-        self.groupBox_5.setTitle(QCoreApplication.translate("Solar Optimus", u"Robustness selector", None))
-        self.label_22.setText(QCoreApplication.translate("Solar Optimus", u"How important is energy availability?", None))
-        self.label_23.setText(QCoreApplication.translate("Solar Optimus", u"Choose one option at the end of the sim.", None))
-        self.groupBox_6.setTitle(QCoreApplication.translate("Solar Optimus", u"Focus of the Optimization", None))
-        self.label_24.setText(QCoreApplication.translate("Solar Optimus", u"Choose a single focus for the optimization. ", None))
-        self.label_25.setText(QCoreApplication.translate("Solar Optimus", u"It will affect significantly the ouput of the tool", None))
-        self.pushButton_4.setText(QCoreApplication.translate("Solar Optimus", u"Launch Tool", None))
-        self.groupBox_7.setTitle(QCoreApplication.translate("Solar Optimus", u"Optimized Value", None))
-        self.label_26.setText(QCoreApplication.translate("Solar Optimus", u"Peak Solar Panel Wattage [W]:", None))
-        self.label_27.setText(QCoreApplication.translate("Solar Optimus", u"Battery Capacity [Wh]:", None))
-        self.WatValue.setText(QCoreApplication.translate("Solar Optimus", u"45", None))
-        self.BatValue.setText(QCoreApplication.translate("Solar Optimus", u"45", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), QCoreApplication.translate("Solar Optimus", u"2 - First Optimization", None))
-        self.groupBox.setTitle(QCoreApplication.translate("Solar Optimus", u"Solar Panel", None))
-        self.label_5.setText(QCoreApplication.translate("Solar Optimus", u"Peak Power [W]", None))
-        self.label_6.setText(QCoreApplication.translate("Solar Optimus", u"Temperature Coefficient [%/\u00b0C]", None))
-        self.label_7.setText(QCoreApplication.translate("Solar Optimus", u"Area  [m\u00b2]", None))
-        self.label_8.setText(QCoreApplication.translate("Solar Optimus", u"Number of Panels", None))
-        self.groupBox_2.setTitle(QCoreApplication.translate("Solar Optimus", u"Battery Array", None))
-        self.label_11.setText(QCoreApplication.translate("Solar Optimus", u"Nominal Capacity [Ah]", None))
-        self.label_12.setText(QCoreApplication.translate("Solar Optimus", u"Minimum SOC [%]", None))
-        self.label_13.setText(QCoreApplication.translate("Solar Optimus", u"Battery Mass [kg]", None))
-        self.label_14.setText(QCoreApplication.translate("Solar Optimus", u"Battery Height [cm]", None))
-        self.label_15.setText(QCoreApplication.translate("Solar Optimus", u"Cycle Life", None))
-        self.label_16.setText(QCoreApplication.translate("Solar Optimus", u"Lifetime in Years", None))
-        self.label_17.setText(QCoreApplication.translate("Solar Optimus", u"Battery Strings in Parallel", None))
-        self.label_18.setText(QCoreApplication.translate("Solar Optimus", u"Battery Strings in Series", None))
-        self.groupBox_3.setTitle(QCoreApplication.translate("Solar Optimus", u"PCU", None))
-        self.label_9.setText(QCoreApplication.translate("Solar Optimus", u"Charge Control Efficiency [%]", None))
-        self.label_10.setText(QCoreApplication.translate("Solar Optimus", u"Inverter Efficiency [%]", None))
-        self.label_29.setText(QCoreApplication.translate("Solar Optimus", u"Max Charge Current [A]", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QCoreApplication.translate("Solar Optimus", u"3 - System parameters", None))
-        self.pushButton_5.setText(QCoreApplication.translate("Solar Optimus", u"Launch Tool", None))
-        self.groupBox_8.setTitle(QCoreApplication.translate("Solar Optimus", u"Precise value of ENS/LOL - Percentage", None))
-        self.label_28.setText(QCoreApplication.translate("Solar Optimus", u"Energy Not Supplied (ENS) [%]:", None))
-        self.WatValue_2.setText(QCoreApplication.translate("Solar Optimus", u"10", None))
-        self.pushButton_12.setText(QCoreApplication.translate("Solar Optimus", u"Download raw data", None))
-        self.pushButton_15.setText(QCoreApplication.translate("Solar Optimus", u"Sample New Day", None))
-        self.groupBox_13.setTitle(QCoreApplication.translate("Solar Optimus", u"Parameters to plot:", None))
-        self.checkBox_9.setText(QCoreApplication.translate("Solar Optimus", u"Battery SOC [%]", None))
-        self.checkBox_8.setText(QCoreApplication.translate("Solar Optimus", u"Load Demand [W]", None))
-        self.checkBox_6.setText(QCoreApplication.translate("Solar Optimus", u"Panel Power [W]", None))
-        self.checkBox_7.setText(QCoreApplication.translate("Solar Optimus", u"Battery Power [W]", None))
-        self.pushButton_17.setText(QCoreApplication.translate("Solar Optimus", u"Clear Last Trace", None))
-        self.tabWidget_3.setTabText(self.tabWidget_3.indexOf(self.tab_5), QCoreApplication.translate("Solar Optimus", u"Sample Day", None))
-        self.groupBox_9.setTitle(QCoreApplication.translate("Solar Optimus", u"Battery Analysis", None))
-        self.label_30.setText(QCoreApplication.translate("Solar Optimus", u"Lifetime in years:", None))
-        self.label_31.setText(QCoreApplication.translate("Solar Optimus", u"Final Capacity", None))
-        self.WatValue_3.setText(QCoreApplication.translate("Solar Optimus", u"10", None))
-        self.BatValue_3.setText(QCoreApplication.translate("Solar Optimus", u"3", None))
-        self.pushButton_16.setText(QCoreApplication.translate("Solar Optimus", u"Clear Last Trace", None))
-        self.tabWidget_3.setTabText(self.tabWidget_3.indexOf(self.tab_8), QCoreApplication.translate("Solar Optimus", u"Battery Analysis", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), QCoreApplication.translate("Solar Optimus", u"4 - Verification", None))
-        self.pushButton_13.setText(QCoreApplication.translate("Solar Optimus", u"Save", None))
-        self.pushButton_14.setText(QCoreApplication.translate("Solar Optimus", u"Restore Default", None))
-        self.groupBox_10.setTitle(QCoreApplication.translate("Solar Optimus", u"PV-Modeling", None))
-        self.label_32.setText(QCoreApplication.translate("Solar Optimus", u"Losses due to shading by surrounding houses or trees...", None))
-        self.label_33.setText(QCoreApplication.translate("Solar Optimus", u"Loss due to mismatch between modules of the PV-array. ", None))
-        self.label_34.setText(QCoreApplication.translate("Solar Optimus", u"Loss of energy due to the connectors in the system.", None))
-        self.label_35.setText(QCoreApplication.translate("Solar Optimus", u"Nameplate rating. Losses due to field variation from datasheet.", None))
-        self.label_36.setText(QCoreApplication.translate("Solar Optimus", u"Light-induced degradation.", None))
-        self.label_37.setText(QCoreApplication.translate("Solar Optimus", u"Modify the constant efficiency of the solar panel. Please refer to PVWatt's loss tool.", None))
-        self.label_42.setText(QCoreApplication.translate("Solar Optimus", u"Losses in a section of cable.", None))
-        self.groupBox_11.setTitle(QCoreApplication.translate("Solar Optimus", u"Soiling-Modeling", None))
-        self.label_38.setText(QCoreApplication.translate("Solar Optimus", u"Modify the parameters of the soiling model. ", None))
-        self.label_39.setText(QCoreApplication.translate("Solar Optimus", u"Refer to PVLib's documentation.", None))
-        self.label_40.setText(QCoreApplication.translate("Solar Optimus", u"Rate at which PV is cleaned:", None))
-        self.label_41.setText(QCoreApplication.translate("Solar Optimus", u"Amount of rain need to clean the PV:", None))
-        self.label_43.setText(QCoreApplication.translate("Solar Optimus", u"[Weeks]", None))
-        self.label_44.setText(QCoreApplication.translate("Solar Optimus", u"[mm]", None))
-        self.groupBox_12.setTitle(QCoreApplication.translate("Solar Optimus", u"Other", None))
-        self.label_45.setText(QCoreApplication.translate("Solar Optimus", u"Mean price per W of solar panel", None))
-        self.label_46.setText(QCoreApplication.translate("Solar Optimus", u"Mean price per Wh of battery", None))
-        self.label_47.setText(QCoreApplication.translate("Solar Optimus", u"Load efficiency:", None))
-        self.label_48.setText(QCoreApplication.translate("Solar Optimus", u"Initial state of charge:", None))
-        self.label_49.setText(QCoreApplication.translate("Solar Optimus", u"[INR]", None))
-        self.label_50.setText(QCoreApplication.translate("Solar Optimus", u"[INR]", None))
-        self.label_51.setText(QCoreApplication.translate("Solar Optimus", u"[%]", None))
-        self.label_52.setText(QCoreApplication.translate("Solar Optimus", u"[%]", None))
+        ___qtablewidgetitem19.setText(QCoreApplication.translate("SolarOptimus", u"To [xx:xx XM]", None));
+        self.pushButton_11.setText(QCoreApplication.translate("SolarOptimus", u"Add Load", None))
+        self.pushButton_10.setText(QCoreApplication.translate("SolarOptimus", u"Remove Load", None))
+        self.label_4.setText(QCoreApplication.translate("SolarOptimus", u"Enter a sample day load profile depending on the seaon", None))
+        self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_10), QCoreApplication.translate("SolarOptimus", u"Summer", None))
+        self.pushButton.setText(QCoreApplication.translate("SolarOptimus", u"Copy Sample to other seasons", None))
+        self.groupBox_4.setTitle(QCoreApplication.translate("SolarOptimus", u"System Info", None))
+        self.label_19.setText(QCoreApplication.translate("SolarOptimus", u"System Longitude", None))
+        self.label_20.setText(QCoreApplication.translate("SolarOptimus", u"System Latitude", None))
+        self.label_21.setText(QCoreApplication.translate("SolarOptimus", u"Designed Years", None))
+        self.pushButton_18.setText(QCoreApplication.translate("SolarOptimus", u"Browse Files", None))
+        self.label_53.setText(QCoreApplication.translate("SolarOptimus", u"OPTIONAL: Add your solar data file in .csv form. Verify csv compatibility in user manual !", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QCoreApplication.translate("SolarOptimus", u"1 - Load Profile", None))
+        self.checkBox.setText(QCoreApplication.translate("SolarOptimus", u"Critical (0%-1% ENSP)", None))
+        self.checkBox_2.setText(QCoreApplication.translate("SolarOptimus", u"High (1%-4% ENSP)", None))
+        self.checkBox_3.setText(QCoreApplication.translate("SolarOptimus", u"Medium (4%-6% ENSP)", None))
+        self.checkBox_4.setText(QCoreApplication.translate("SolarOptimus", u"Basic (6%-10% ENSP)", None))
+        self.checkBox_5.setText(QCoreApplication.translate("SolarOptimus", u"Minimal (>10% ENSP", None))
+        self.groupBox_5.setTitle(QCoreApplication.translate("SolarOptimus", u"Robustness selector", None))
+        self.label_22.setText(QCoreApplication.translate("SolarOptimus", u"How important is energy availability?", None))
+        self.label_23.setText(QCoreApplication.translate("SolarOptimus", u"Choose one option at the end of the sim.", None))
+        self.groupBox_6.setTitle(QCoreApplication.translate("SolarOptimus", u"Focus of the Optimization", None))
+        self.label_24.setText(QCoreApplication.translate("SolarOptimus", u"Choose a single focus for the optimization. ", None))
+        self.label_25.setText(QCoreApplication.translate("SolarOptimus", u"It will affect significantly the ouput of the tool", None))
+        self.pushButton_4.setText(QCoreApplication.translate("SolarOptimus", u"Launch Tool", None))
+        self.groupBox_7.setTitle(QCoreApplication.translate("SolarOptimus", u"Optimized Value", None))
+        self.label_26.setText(QCoreApplication.translate("SolarOptimus", u"Peak Solar Panel Wattage [W]:", None))
+        self.label_27.setText(QCoreApplication.translate("SolarOptimus", u"Battery Capacity [Wh]:", None))
+        self.WatValue.setText(QCoreApplication.translate("SolarOptimus", u"45", None))
+        self.BatValue.setText(QCoreApplication.translate("SolarOptimus", u"45", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), QCoreApplication.translate("SolarOptimus", u"2 - First Optimization", None))
+        self.groupBox.setTitle(QCoreApplication.translate("SolarOptimus", u"Solar Panel", None))
+        self.label_5.setText(QCoreApplication.translate("SolarOptimus", u"Peak Power [W]", None))
+        self.label_6.setText(QCoreApplication.translate("SolarOptimus", u"Power Temperature Coefficient [%/\u00b0C]", None))
+        self.label_8.setText(QCoreApplication.translate("SolarOptimus", u"Total Number of Panels", None))
+        self.groupBox_2.setTitle(QCoreApplication.translate("SolarOptimus", u"Battery Array", None))
+        self.label_11.setText(QCoreApplication.translate("SolarOptimus", u"Nominal Capacity [Ah]", None))
+        self.label_12.setText(QCoreApplication.translate("SolarOptimus", u"Minimum SOC [%]", None))
+        self.label_15.setText(QCoreApplication.translate("SolarOptimus", u"Cycle Life", None))
+        self.label_16.setText(QCoreApplication.translate("SolarOptimus", u"Lifetime in Years", None))
+        self.label_17.setText(QCoreApplication.translate("SolarOptimus", u"Battery Strings in Parallel", None))
+        self.label_18.setText(QCoreApplication.translate("SolarOptimus", u"Battery Strings in Series", None))
+        self.groupBox_3.setTitle(QCoreApplication.translate("SolarOptimus", u"PCU", None))
+        self.label_9.setText(QCoreApplication.translate("SolarOptimus", u"Charge Control Efficiency [%]", None))
+        self.label_10.setText(QCoreApplication.translate("SolarOptimus", u"Inverter Efficiency [%]", None))
+        self.label_29.setText(QCoreApplication.translate("SolarOptimus", u"Max Charge Current [A]", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QCoreApplication.translate("SolarOptimus", u"3 - System parameters", None))
+        self.pushButton_5.setText(QCoreApplication.translate("SolarOptimus", u"Launch Tool", None))
+        self.groupBox_8.setTitle(QCoreApplication.translate("SolarOptimus", u"Precise value of ENS/LOL - Percentage", None))
+        self.label_28.setText(QCoreApplication.translate("SolarOptimus", u"Energy Not Supplied (ENS) [%]:", None))
+        self.WatValue_2.setText(QCoreApplication.translate("SolarOptimus", u"10", None))
+        self.pushButton_12.setText(QCoreApplication.translate("SolarOptimus", u"Download raw data", None))
+        self.pushButton_15.setText(QCoreApplication.translate("SolarOptimus", u"Sample New Day", None))
+        self.groupBox_13.setTitle(QCoreApplication.translate("SolarOptimus", u"Parameters to plot:", None))
+        self.checkBox_9.setText(QCoreApplication.translate("SolarOptimus", u"Battery SOC [%]", None))
+        self.checkBox_8.setText(QCoreApplication.translate("SolarOptimus", u"Load Demand [W]", None))
+        self.checkBox_6.setText(QCoreApplication.translate("SolarOptimus", u"Panel Power [W]", None))
+        self.checkBox_7.setText(QCoreApplication.translate("SolarOptimus", u"Battery Power [W]", None))
+        self.pushButton_17.setText(QCoreApplication.translate("SolarOptimus", u"Clear Oldest Trace", None))
+        self.tabWidget_3.setTabText(self.tabWidget_3.indexOf(self.tab_5), QCoreApplication.translate("SolarOptimus", u"Sample Day", None))
+        self.groupBox_9.setTitle(QCoreApplication.translate("SolarOptimus", u"Battery Analysis", None))
+        self.label_30.setText(QCoreApplication.translate("SolarOptimus", u"Lifetime in years:", None))
+        self.label_31.setText(QCoreApplication.translate("SolarOptimus", u"Final Capacity", None))
+        self.WatValue_3.setText(QCoreApplication.translate("SolarOptimus", u"10", None))
+        self.BatValue_3.setText(QCoreApplication.translate("SolarOptimus", u"3", None))
+        self.pushButton_16.setText(QCoreApplication.translate("SolarOptimus", u"Clear Oldest Trace", None))
+        self.tabWidget_3.setTabText(self.tabWidget_3.indexOf(self.tab_8), QCoreApplication.translate("SolarOptimus", u"Battery Analysis", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), QCoreApplication.translate("SolarOptimus", u"4 - Verification", None))
+        self.pushButton_13.setText(QCoreApplication.translate("SolarOptimus", u"Save", None))
+        self.pushButton_14.setText(QCoreApplication.translate("SolarOptimus", u"Restore Default", None))
+        self.groupBox_10.setTitle(QCoreApplication.translate("SolarOptimus", u"PV-Modeling", None))
+        self.label_32.setText(QCoreApplication.translate("SolarOptimus", u"Losses due to shading by surrounding houses or trees...", None))
+        self.label_33.setText(QCoreApplication.translate("SolarOptimus", u"Loss due to mismatch between modules of the PV-array. ", None))
+        self.label_34.setText(QCoreApplication.translate("SolarOptimus", u"Loss of energy due to the connectors in the system.", None))
+        self.label_35.setText(QCoreApplication.translate("SolarOptimus", u"Nameplate rating. Losses due to field variation from datasheet.", None))
+        self.label_36.setText(QCoreApplication.translate("SolarOptimus", u"Light-induced degradation.", None))
+        self.label_37.setText(QCoreApplication.translate("SolarOptimus", u"Modify the constant efficiency of the solar panel. Please refer to PVWatt's loss tool.", None))
+        self.label_42.setText(QCoreApplication.translate("SolarOptimus", u"Losses in a section of cable.", None))
+        self.groupBox_11.setTitle(QCoreApplication.translate("SolarOptimus", u"Soiling-Modeling", None))
+        self.label_38.setText(QCoreApplication.translate("SolarOptimus", u"Modify the parameters of the soiling model. ", None))
+        self.label_39.setText(QCoreApplication.translate("SolarOptimus", u"Refer to PVLib's documentation.", None))
+        self.label_40.setText(QCoreApplication.translate("SolarOptimus", u"Rate at which PV is cleaned:", None))
+        self.label_41.setText(QCoreApplication.translate("SolarOptimus", u"Amount of rain need to clean the PV:", None))
+        self.label_43.setText(QCoreApplication.translate("SolarOptimus", u"[Weeks]", None))
+        self.label_44.setText(QCoreApplication.translate("SolarOptimus", u"[mm]", None))
+        self.groupBox_12.setTitle(QCoreApplication.translate("SolarOptimus", u"Other", None))
+        self.label_45.setText(QCoreApplication.translate("SolarOptimus", u"Mean price per W of solar panel", None))
+        self.label_46.setText(QCoreApplication.translate("SolarOptimus", u"Mean price per Wh of battery", None))
+        self.label_47.setText(QCoreApplication.translate("SolarOptimus", u"Load efficiency:", None))
+        self.label_48.setText(QCoreApplication.translate("SolarOptimus", u"Initial state of charge:", None))
+        self.label_49.setText(QCoreApplication.translate("SolarOptimus", u"[INR]", None))
+        self.label_50.setText(QCoreApplication.translate("SolarOptimus", u"[INR]", None))
+        self.label_51.setText(QCoreApplication.translate("SolarOptimus", u"[%]", None))
+        self.label_52.setText(QCoreApplication.translate("SolarOptimus", u"[%]", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.Parameters), QCoreApplication.translate("SolarOptimus", u"Parameters", None))
-        self.menuSolarOptimus_Tool.setTitle(QCoreApplication.translate("SolarOptimus", u"", None))
-    # retranslateUi
+        self.menuSolarOptimus_Tool.setTitle(QCoreApplication.translate("SolarOptimus", u"SolarOptimus Tool ", None))
 
 ### TO COPY COOOOOLLLE ###
 
@@ -933,7 +911,7 @@ class MainWindow(QMainWindow):
         self._setdefaultvalues()
         #Connect restore value
         self.ui.pushButton_14.clicked.connect(lambda: self._setdefaultvalues())
-        #self._set_all_default_values()
+        self._set_all_default_values()
 
 
 # --- ACTION FUNCTIONS: FIRST OPTIMIZATION ---
@@ -1016,8 +994,11 @@ class MainWindow(QMainWindow):
         delta_cost = (1 - min(A[1], B[1]) / max(A[1], B[1])) * 100
 
         # Text labels
+        ymin, ymax = ax.get_ylim()
+        y_offset = (ymax - ymin) * 0.02  # 2% of y-range
+
         text1 = ax.text(
-            (A[0] + B[0]) / 2, A[1] + 0.005,
+            (A[0] + B[0]) / 2, A[1] + y_offset,
             f'{delta_ens:.1f}% ENS',
             ha='center', color='green', fontsize=8, clip_on=True
         )
@@ -1374,7 +1355,12 @@ class MainWindow(QMainWindow):
         """
         Removes the last DataFrame from the list and refreshes the battery plot.
         """
-        if len(self.df_bat)>=1:
+        if len(self.df_bat) >= 2:  # Ensure at least 2 elements exist
+            last = self.df_bat.pop()     # Remove and store last
+            self.df_bat.pop(0)           # Remove first
+            self.df_bat.insert(0, last)  # Push last to front
+            self._refreshBatteryPlot()
+        if len(self.df_bat)==1:
             self.df_bat.pop()  # Remove last element
             self._refreshBatteryPlot()  # Refresh with updated list
 
@@ -1382,10 +1368,16 @@ class MainWindow(QMainWindow):
         """
         Redraws the battery plot from the current list of DataFrames.
         """
+
+        if not self.df_bat:
+            self.canvas_3.axes.cla()
+            self.canvas_3.draw()
+            return
+
         self.canvas_3.axes.clear()
         self.canvas_3.axes.set_ylabel("System health [%]", fontsize=8)
+        self.canvas_3.axes.set_xlabel("Years of implementation", fontsize=8)
         self.canvas_3.axes.set_title("Battery health over time", fontsize=8)
-        #self.canvas_3.axes.axvline(x=df_plot.index[-1]design_year, label= 'End of design time')
         self.canvas_3.figure.tight_layout()
 
         # Plot each DataFrame
@@ -1500,7 +1492,7 @@ class MainWindow(QMainWindow):
         """
 
         if not self.one_day_df:
-            self.canvas_2.figure.clf()
+            self.canvas_2.axes.cla()
             self.canvas_2.draw()
             return
 
@@ -1706,9 +1698,6 @@ class MainWindow(QMainWindow):
     def get_temp_coef(self):
         return self.ui.textEdit_3.toPlainText()
     
-    def get_area(self):
-        return self.ui.textEdit_2.toPlainText()
-    
     def get_PV_num(self):
         return self.ui.textEdit_4.toPlainText()
     
@@ -1720,12 +1709,6 @@ class MainWindow(QMainWindow):
     
     def get_capa(self):
         return self.ui.textEdit_8.toPlainText()
-    
-    def get_height(self):
-        return self.ui.textEdit_7.toPlainText()
-    
-    def get_mass(self):
-        return self.ui.textEdit_6.toPlainText()
     
     def get_SOC_min(self):
         return self.ui.textEdit_5.toPlainText()
@@ -1785,7 +1768,7 @@ class MainWindow(QMainWindow):
     def get_solar_file(self):
         return self.ui.textEdit_31.toPlainText()
     
-'''
+
     ### DEBUG TOOL ###
     def _set_all_default_values(self):
         """
@@ -1799,7 +1782,6 @@ class MainWindow(QMainWindow):
 
         # Solar Panel & PCU (Tab 2)
         self.ui.textEdit.setPlainText("570")  # Example default Power
-        self.ui.textEdit_2.setPlainText("2.6")  # Example default Area
         self.ui.textEdit_3.setPlainText("-0.7")  # Example default temp coef
         self.ui.textEdit_4.setPlainText("6")  # Example default PV num
 
@@ -1808,8 +1790,6 @@ class MainWindow(QMainWindow):
 
         # Battery Array (Tab 2)
         self.ui.textEdit_8.setPlainText("300")  # Battery capacity
-        self.ui.textEdit_7.setPlainText("22")  # Battery height
-        self.ui.textEdit_6.setPlainText("77")  # Battery mass
         self.ui.textEdit_5.setPlainText("20")  # Min SOC
         self.ui.textEdit_9.setPlainText("1500")  # Cycle life
         self.ui.textEdit_10.setPlainText("20")  # Lifetime in years
@@ -1817,7 +1797,7 @@ class MainWindow(QMainWindow):
         self.ui.textEdit_12.setPlainText("3")   # Battery series
         self.ui.textEdit_30.setPlainText("15")
 
-        print("All user input QTextEdits set to default values.")'''
+        print("All user input QTextEdits set to default values.")
 
 
         
