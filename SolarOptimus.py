@@ -72,7 +72,7 @@ class Ui_MainWindow(object):
         self.pushButton_3.setGeometry(QRect(170, 270, 101, 41))
         self.label = QLabel(self.tab_6)
         self.label.setObjectName(u"label")
-        self.label.setGeometry(QRect(60, 10, 711, 21))
+        self.label.setGeometry(QRect(60, 10, 711, 21)) 
         font = QFont()
         font.setPointSize(10)
         self.label.setFont(font)
@@ -872,7 +872,7 @@ class MainWindow(QMainWindow):
         layout_2.addWidget(self.canvas_2)
 
         #Launch the code
-        self.design_year = 5
+        self.design_year = None
         self.df_final = []
         self.df_bat = []
         self.ui.pushButton_5.clicked.connect(lambda: logic.launchVerification(self))
@@ -1299,6 +1299,7 @@ class MainWindow(QMainWindow):
         """
         Displays an error message on a button for a limited time.
         """
+        self._updateProgress(0)
         button = self.ui.pushButton_4
         original_text = button.text()
         palette = button.palette()
@@ -1323,6 +1324,10 @@ class MainWindow(QMainWindow):
         """
         Displays an error message on a button for a limited time.
         """
+        self._updateProgress_2(0) # Reset progress bar
+        self.ui.WatValue_2.hide()  # Hide results
+        self.ui.BatValue_3.hide()  # Hide results
+        self.ui.WatValue_3.hide()  # Hide results
         button = self.ui.pushButton_5
         original_text = button.text()
         palette = button.palette()
@@ -1353,16 +1358,22 @@ class MainWindow(QMainWindow):
 
     def _clearLastPlot(self):
         """
-        Removes the last DataFrame from the list and refreshes the battery plot.
+        Removes the first and last DataFrames from df_bat, 
+        then moves the previously last one to the front, 
+        and refreshes the battery plot.
         """
-        if len(self.df_bat) >= 2:  # Ensure at least 2 elements exist
-            last = self.df_bat.pop()     # Remove and store last
-            self.df_bat.pop(0)           # Remove first
-            self.df_bat.insert(0, last)  # Push last to front
+        if len(self.df_bat) >= 2:
+            last = self.df_bat[-1]
+            self.df_bat = [last] + self.df_bat[1:-1]
             self._refreshBatteryPlot()
-        if len(self.df_bat)==1:
-            self.df_bat.pop()  # Remove last element
-            self._refreshBatteryPlot()  # Refresh with updated list
+        elif len(self.df_bat) == 1:
+            self.df_bat.clear()
+
+            if not self.one_day_df:
+                print("Design year has been set to None.")
+                self.design_year = None
+        
+            self._refreshBatteryPlot()  
 
     def _refreshBatteryPlot(self):
         """
@@ -1476,11 +1487,17 @@ class MainWindow(QMainWindow):
 
     def _clearLastSystPlot(self):
         """
-        Removes the last DataFrame from the list and refreshes the battery plot for the System Plot
+        Removes the first DataFrame from df_final and one_day_df,
+        and refreshes the system plot.
         """
-        if len(self.df_final)>=1 and len(self.one_day_df)>=1:
-            self.df_final.pop()  # Remove last element
-            self.one_day_df.pop()
+        if self.df_final and self.one_day_df:
+            self.df_final = self.df_final[1:]
+            self.one_day_df = self.one_day_df[1:]
+            
+            if not self.one_day_df and len(self.df_bat) == 0:
+                print("Design year has been set to None.")
+                self.design_year = None
+
             self._updateSystemPlot()
 
     def _updateSystemPlot(self):

@@ -1,5 +1,5 @@
 from datetime import datetime
-import LOLP
+import ENS_model
 import pandas as pd
 import csv
 
@@ -57,9 +57,6 @@ def check_times(start_str, end_str):
     fmt = "%H:%M"  # 24-hour format
     start = datetime.strptime(start_str.strip(), fmt)
     end = datetime.strptime(end_str.strip(), fmt)
-
-    print(start)
-    print(end)
 
     if start >= end:
         return False
@@ -151,7 +148,7 @@ def load_csv(window, filepath):
         df = pd.read_csv(filepath, delimiter=delimiter)
         print(df)
 
-        expected_cols = ['Month', 'Day', 'Hour', 'DNI', 'DHI', 'Temperature', 'Wind']
+        expected_cols = ['Month', 'Day', 'Hour', 'DNI', 'DHI']
         missing = [col for col in expected_cols if col not in df.columns]
         
         if 'Year' not in df.columns:
@@ -222,11 +219,15 @@ def launchOpti(window):
     df_solar_data = load_csv(window, solar_path)
 
     eta_tot = ((1-eta_shading/100) * (1-eta_mismatch/100) * (1-eta_connectors/100) * (1-eta_light/100) * (1-eta_nameplate/100))
-    print(f"Eta_tot is {eta_tot}")
+
     window._updateProgress(5)
-    pareto_points = LOLP.optimizer(longitude, latitude, tabs, PricePerW, PricePerWh, eta_tot, 
+    pareto_points = ENS_model.optimizer(longitude, latitude, tabs, PricePerW, PricePerWh, eta_tot, 
                                    cleaningfreq, rainthresh, eta_cables, window._updateProgress, 
-                                   etaLoad, df_solar=df_solar_data)
+                                   etaLoad, design_year, df_solar=df_solar_data)
+    
+    if isinstance(pareto_points, str):
+        return window._return_error(pareto_points)
+
     window.df_full = pareto_points
     window.just_launched = True
     window._disable_button()
@@ -320,11 +321,18 @@ def launchVerification(window):
     window._updateProgress_2(10)
     eta_tot = ((1-eta_shading/100) * (1-eta_mismatch/100) * (1-eta_connectors/100) * (1-eta_light/100) * (1-eta_nameplate/100))
 
-    df, ens, bat_df, lifetime_exp = LOLP.verifier(longitude, latitude, tabs, power,
+    print(f"Design year: {design_year} and window design year: {window.design_year}")
+    if window.design_year is not None and design_year != window.design_year:
+        return window._return_error_2("Year mismatch")
+
+    df, ens, bat_df, lifetime_exp = ENS_model.verifier(longitude, latitude, tabs, power,
                                 bat_capa, bat_lifetime, bat_cycle, bat_series, 
                                 bat_para, pv_num, soc_min, pcu_charge, pcu_inv, 
                                 alpha, cleaningfreq, rainthresh, eta_tot, pcu_current, eta_cables, 
                                 window._updateProgress_2, etaLoad, design_year, df_solar= df_solar_data)
+    
+    if isinstance(df, str):
+        return window._return_error_2(df)
     
     design_health = str(round(find_health(bat_df, design_year)*100,1))
     print(f"The ENS computed is LOLP.py is {ens}")

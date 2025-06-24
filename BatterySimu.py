@@ -10,6 +10,7 @@
 # sulfation effects, and SOC-dependent degradation, following the approach described in the paper.
 
 import numpy as np
+from numba import njit
 
 # Corrosion curve data: Voltage [V] vs corrosion speed (empirical, used for interpolation)
 # From /* Bindner et al. (2005) / Section 5.2.1.1 / Figure #11 */
@@ -28,6 +29,7 @@ class BatteryFast:
         self.Soc_init = Soc_init
         self.V_nom = V_nom
 
+@njit
 def run_battery_model(T_array, P_array, soc_init, u_init,
                       C_nom, Uo, g, Cc, Cd, Mc, Md, pc, pd,
                       I_gas0, U_gas0, T_gas0, c_u, c_t, delta_t, SOC_min):
